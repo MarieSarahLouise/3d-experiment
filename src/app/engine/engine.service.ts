@@ -42,6 +42,7 @@ export class EngineService implements OnDestroy {
         this.statue = gltf.scene;
         console.log(this.statue.position)
         this.scene.add( gltf.scene.children[0] );
+        console.log(this.statue);
   });
   
     this.renderer = new THREE.WebGLRenderer({
@@ -57,21 +58,26 @@ export class EngineService implements OnDestroy {
     this.camera = new THREE.PerspectiveCamera(
       75, window.innerWidth / window.innerHeight, 1, 1000
     );
-    this.camera.position.z = 257;
+
+    this.camera.position.z = 400;
     this.scene.add(this.camera);
 
+    this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+    this.controls.maxPolarAngle = 2;
+    this.controls.minPolarAngle = 1;
+    this.controls.autoRotate = true;
 
-    this.controls = new OrbitControls( this.camera, this.domRef );
+
     // soft white light
     this.light = new THREE.AmbientLight(0x404040, 4.5 );
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    /* const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     this.cube = new THREE.Mesh( geometry, material );
     console.log(this.cube.position)
-    this.scene.add(this.cube);
+    this.scene.add(this.cube); */
 
   }
 
@@ -95,11 +101,13 @@ export class EngineService implements OnDestroy {
 
   public render(): void {
     this.frameId = requestAnimationFrame(() => {
+      this.controls.update();
       this.render();
     });
 
-    this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
+    //this.statue.rotation.x += 1;
+    //this.statue.rotation.y += 1;
+    
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -109,7 +117,7 @@ export class EngineService implements OnDestroy {
 
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-
+    
     this.renderer.setSize( width, height );
   }
 
