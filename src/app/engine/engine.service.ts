@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import GLTFLoader from 'three-gltf-loader';
 import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
@@ -13,7 +14,9 @@ export class EngineService implements OnDestroy {
 
   private frameId: number = null;
 
-  public constructor(private ngZone: NgZone) {}
+  public constructor(private ngZone: NgZone) {
+    
+  }
 
   public ngOnDestroy(): void {
     if (this.frameId != null) {
@@ -24,7 +27,14 @@ export class EngineService implements OnDestroy {
   public createScene(canvas: ElementRef<HTMLCanvasElement>): void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
-
+    
+    this.loader.load(
+      'assets/demo.glb',
+      ( gltf ) => {
+        // called when the resource is loaded
+        this.scene.add( gltf.scene );
+  });
+  
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: true,    // transparent background
@@ -38,7 +48,7 @@ export class EngineService implements OnDestroy {
     this.camera = new THREE.PerspectiveCamera(
       75, window.innerWidth / window.innerHeight, 0.1, 1000
     );
-    this.camera.position.z = 5;
+    //this.camera.position.z = 5;
     this.scene.add(this.camera);
 
     // soft white light
@@ -46,10 +56,10 @@ export class EngineService implements OnDestroy {
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+   /*  const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     this.cube = new THREE.Mesh( geometry, material );
-    this.scene.add(this.cube);
+    this.scene.add(this.cube); */
 
   }
 
@@ -76,9 +86,9 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
-    this.cube.rotation.x += 0.01;
+   /*  this.cube.rotation.x += 0.01;
     this.cube.rotation.y += 0.01;
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera); */
   }
 
   public resize(): void {
@@ -90,4 +100,7 @@ export class EngineService implements OnDestroy {
 
     this.renderer.setSize( width, height );
   }
+
+  public loader = new GLTFLoader();
+
 }
