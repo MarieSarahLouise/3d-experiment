@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
 import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 @Injectable({ providedIn: 'root' })
 export class EngineService implements OnDestroy {
@@ -9,12 +10,14 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
-
+  private statue: any;
   private cube: THREE.Mesh;
-
+  private controls: OrbitControls;
   private frameId: number = null;
-
+  private domRef: HTMLElement
   public constructor(private ngZone: NgZone) {
+
+    
     
   }
 
@@ -22,6 +25,9 @@ export class EngineService implements OnDestroy {
     if (this.frameId != null) {
       cancelAnimationFrame(this.frameId);
     }
+  }
+  public passDomRef(domref: HTMLElement){
+    this.domRef = domref
   }
 
   public createScene(canvas: ElementRef<HTMLCanvasElement>): void {
@@ -32,7 +38,10 @@ export class EngineService implements OnDestroy {
       'assets/demo.glb',
       ( gltf ) => {
         // called when the resource is loaded
-        this.scene.add( gltf.scene );
+        console.log(gltf);
+        this.statue = gltf.scene;
+        console.log(this.statue.position)
+        this.scene.add( gltf.scene.children[0] );
   });
   
     this.renderer = new THREE.WebGLRenderer({
@@ -46,20 +55,23 @@ export class EngineService implements OnDestroy {
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(
-      75, window.innerWidth / window.innerHeight, 0.1, 1000
+      75, window.innerWidth / window.innerHeight, 1, 1000
     );
-    //this.camera.position.z = 5;
+    this.camera.position.z = 257;
     this.scene.add(this.camera);
 
+
+    this.controls = new OrbitControls( this.camera, this.domRef );
     // soft white light
-    this.light = new THREE.AmbientLight( 0x404040 );
+    this.light = new THREE.AmbientLight(0x404040, 4.5 );
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-   /*  const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     this.cube = new THREE.Mesh( geometry, material );
-    this.scene.add(this.cube); */
+    console.log(this.cube.position)
+    this.scene.add(this.cube);
 
   }
 
@@ -86,9 +98,9 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
-   /*  this.cube.rotation.x += 0.01;
+    this.cube.rotation.x += 0.01;
     this.cube.rotation.y += 0.01;
-    this.renderer.render(this.scene, this.camera); */
+    this.renderer.render(this.scene, this.camera);
   }
 
   public resize(): void {
